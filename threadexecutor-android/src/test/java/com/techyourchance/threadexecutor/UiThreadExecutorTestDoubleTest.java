@@ -1,51 +1,43 @@
-package com.techyourchance.threadposter;
+package com.techyourchance.threadexecutor;
 
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
-
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-public class BackgroundThreadExecutorTestDoubleTest {
+public class UiThreadExecutorTestDoubleTest {
 
     private static final int TEST_TIMEOUT_MS = 1000;
     private static final int TEST_DELAY_MS = TEST_TIMEOUT_MS / 10;
 
-    @ClassRule
-    public final static Timeout TIMEOUT = Timeout.millis(TEST_TIMEOUT_MS);
-
     /**
      * This class will be used in order to check side effects in tests
      */
-    private class Counter {
+    private class Appender {
 
-        private AtomicInteger mCount = new AtomicInteger(0);
+        private String mString = "";
 
-        private void increment() {
-            mCount.incrementAndGet();
+        private void append(String string) {
+            mString += string;
         }
 
-        private int getCount() {
-            return mCount.get();
+        private String getString() {
+            return mString;
         }
     }
 
-    private BackgroundThreadExecutorTestDouble SUT;
+    private UiThreadExecutorTestDouble SUT;
 
     @Before
     public void setup() throws Exception {
-        SUT = new BackgroundThreadExecutorTestDouble();
+        SUT = new UiThreadExecutorTestDouble();
     }
 
     @Test
-    public void executeThenJoin_singleRunnable_sideEffectsNotVisibleBeforeJoin() throws Exception {
+    public void executeThenJoin_singleRunnable_sideEffectNotVisibleBeforeJoin() throws Exception {
         // Arrange
-        final Counter counter = new Counter();
+        final Appender appender = new Appender();
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -54,20 +46,21 @@ public class BackgroundThreadExecutorTestDoubleTest {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                counter.increment();
+                appender.append("a");
             }
         };
         // Act
         SUT.execute(runnable);
         // Assert
         Thread.sleep(TEST_DELAY_MS);
-        assertThat(counter.getCount(), is(0));
+        assertThat(appender.getString(), is(""));
     }
+
 
     @Test
     public void executeThenJoin_singleRunnable_sideEffectsVisibleAfterJoin() throws Exception {
         // Arrange
-        final Counter counter = new Counter();
+        final Appender appender = new Appender();
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -76,7 +69,7 @@ public class BackgroundThreadExecutorTestDoubleTest {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                counter.increment();
+                appender.append("a");
             }
         };
         // Act
@@ -84,61 +77,14 @@ public class BackgroundThreadExecutorTestDoubleTest {
         // Assert
         Thread.sleep(TEST_DELAY_MS);
         SUT.join();
-        assertThat(counter.getCount(), is(1));
+        assertThat(appender.getString(), is("a"));
     }
 
-    @Test
-    public void executeThenJoin_multipleRunnablesIndependent_sideEffectsNotVisibleBeforeJoin() throws Exception {
-        // Arrange
-        final Counter counter = new Counter();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                counter.increment();
-            }
-        };
-        // Act
-        SUT.execute(runnable);
-        SUT.execute(runnable);
-        // Assert
-        Thread.sleep(TEST_DELAY_MS);
-        assertThat(counter.getCount(), is(0));
-    }
 
     @Test
-    public void executeThenJoin_multipleRunnablesIndependent_sideEffectsVisibleAfterJoin() throws Exception {
+    public void executeThenJoin_multipleRunnables_sideEffectsNotVisibleBeforeJoin() throws Exception {
         // Arrange
-        final Counter counter = new Counter();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                counter.increment();
-            }
-        };
-        // Act
-        SUT.execute(runnable);
-        SUT.execute(runnable);
-        // Assert
-        Thread.sleep(TEST_DELAY_MS);
-        SUT.join();
-        assertThat(counter.getCount(), is(2));
-    }
-
-    @Test
-    public void executeThenJoin_multipleRunnablesInterdependent_sideEffectsNotVisibleBeforeJoin() throws Exception {
-        // Arrange
-        final Counter counter = new Counter();
-        final Semaphore semaphore = new Semaphore(0);
+        final Appender appender = new Appender();
         Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
@@ -147,30 +93,45 @@ public class BackgroundThreadExecutorTestDoubleTest {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                semaphore.release();
-                counter.increment();
+                appender.append("a");
             }
         };
         Runnable runnable2 = new Runnable() {
             @Override
             public void run() {
-                semaphore.acquireUninterruptibly();
-                counter.increment();
+                try {
+                    Thread.sleep(2 * TEST_DELAY_MS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                appender.append("b");
+            }
+        };
+        Runnable runnable3 = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2 * TEST_DELAY_MS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                appender.append("c");
             }
         };
         // Act
         SUT.execute(runnable1);
         SUT.execute(runnable2);
+        SUT.execute(runnable3);
         // Assert
         Thread.sleep(TEST_DELAY_MS);
-        assertThat(counter.getCount(), is(0));
+        assertThat(appender.getString(), is(""));
     }
 
+
     @Test
-    public void executeThenJoin_multipleRunnablesInterdependent_sideEffectsVisibleAfterJoin() throws Exception {
+    public void executeThenJoin_multipleRunnables_sideEffectsVisibleAfterJoinInOrder() throws Exception {
         // Arrange
-        final Counter counter = new Counter();
-        final Semaphore semaphore = new Semaphore(0);
+        final Appender appender = new Appender();
         Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
@@ -179,23 +140,38 @@ public class BackgroundThreadExecutorTestDoubleTest {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                semaphore.release();
-                counter.increment();
+                appender.append("a");
             }
         };
         Runnable runnable2 = new Runnable() {
             @Override
             public void run() {
-                semaphore.acquireUninterruptibly();
-                counter.increment();
+                try {
+                    Thread.sleep(2 * TEST_DELAY_MS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                appender.append("b");
+            }
+        };
+        Runnable runnable3 = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2 * TEST_DELAY_MS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                appender.append("c");
             }
         };
         // Act
         SUT.execute(runnable1);
         SUT.execute(runnable2);
+        SUT.execute(runnable3);
         // Assert
         Thread.sleep(TEST_DELAY_MS);
         SUT.join();
-        assertThat(counter.getCount(), is(2));
+        assertThat(appender.getString(), is("abc"));
     }
 }

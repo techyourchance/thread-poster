@@ -57,18 +57,7 @@ public class BackgroundThreadExecutorTestDouble extends BackgroundThreadExecutor
         Thread thread;
         while ((thread = threadsCopy.poll()) != null) {
             try {
-
-                // the below comment and code don't make sense... however, there probably was a
-                // reason why I wrote them, therefore keep them for now (harmless)
-                // TODO: review the below code and decide whether it is really needed
-
-                // there is race condition - "self" thread and further threads could be added; we need
-                // to wait only until threads before "self" finish
-                if (thread.getId() == Thread.currentThread().getId()) {
-                    break;
-                } else {
-                    thread.join();
-                }
+                thread.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
