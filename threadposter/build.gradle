@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'com.jfrog.bintray'
 apply plugin: 'maven-publish'
 
 dependencies {
@@ -14,10 +13,12 @@ targetCompatibility = "1.7"
 publishing {
     publications {
         Production(MavenPublication) {
-            artifact("$buildDir/libs/threadposter.jar")
+
             groupId 'com.techyourchance.threadposter'
             artifactId 'threadposter'
             version '0.7.0'
+
+            from components.java
 
             //The publication doesn't know about our dependencies, so we have to manually add them to the pom
             pom.withXml {
@@ -32,30 +33,5 @@ publishing {
                 }
             }
         }
-    }
-}
-
-bintray {
-
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-
-    //configurations = ['archives'] //When uploading configuration files
-    publications = ['Production']
-
-    dryRun = false //[Default: false] Whether to run this as dry-run, without deploying
-    publish = false //[Default: false] Whether version should be auto published after an upload
-    override = false //[Default: false] Whether to override version artifacts already published
-
-    //Package configuration. The plugin will use the repo and name properties to check if the package already exists. In that case, there's no need to configure the other package properties (like userOrg, desc, etc).
-    pkg {
-        repo = 'maven'
-        name = project.name
-        userOrg = 'techyourchance' //An optional organization name when the repo belongs to one of the user's orgs
-        desc = 'Easy, unit testable and expressive multi-threading library for Java and Android'
-        websiteUrl = 'https://github.com/techyourchance/thread-poster'
-        vcsUrl = 'https://github.com/techyourchance/thread-poster.git'
-        licenses = ['Apache-2.0']
-        publicDownloadNumbers = true
     }
 }
