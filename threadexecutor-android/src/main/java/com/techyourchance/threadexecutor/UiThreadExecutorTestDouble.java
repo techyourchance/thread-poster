@@ -1,7 +1,6 @@
 package com.techyourchance.threadexecutor;
 
 import android.os.Handler;
-import android.os.Looper;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -49,7 +48,7 @@ public class UiThreadExecutorTestDouble extends UiThreadExecutor {
      * Call to this method allows to establish a happens-before relationship between the previously
      * posted {@link Runnable}s and subsequent code.
      */
-    /* pp */ void join() {
+    public void join() {
         Queue<Thread> threadsCopy;
         synchronized (MONITOR) {
             threadsCopy = new LinkedList<>(mThreads);

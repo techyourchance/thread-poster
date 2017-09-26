@@ -14,16 +14,22 @@ public class SampleWorker {
 
 
     public interface SampleWorkerListener {
-        void onWorkDone();
+        void onWorkDone(String data);
     }
 
+    private final SampleDataRetriever mSampleDataRetriever;
     private final BackgroundThreadExecutor mBackgroundThreadExecutor;
     private final UiThreadExecutor mUiThreadExecutor;
 
     private final Set<SampleWorkerListener> mListeners = Collections.newSetFromMap(
             new ConcurrentHashMap<SampleWorkerListener, Boolean>());
 
-    public SampleWorker(BackgroundThreadExecutor backgroundThreadExecutor, UiThreadExecutor uiThreadExecutor) {
+
+
+    public SampleWorker(SampleDataRetriever sampleDataRetriever,
+                        BackgroundThreadExecutor backgroundThreadExecutor,
+                        UiThreadExecutor uiThreadExecutor) {
+        mSampleDataRetriever = sampleDataRetriever;
         mBackgroundThreadExecutor = backgroundThreadExecutor;
         mUiThreadExecutor = uiThreadExecutor;
     }
@@ -50,26 +56,21 @@ public class SampleWorker {
     @WorkerThread
     private void doWorkSync() {
 
-        // simulate 5 seconds worth of work
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        final String data = mSampleDataRetriever.getData();
 
         // notify listeners on UI thread
         mUiThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                notifyListenersWorkDone();
+                notifyListenersWorkDone(data);
             }
         });
     }
 
     @UiThread
-    private void notifyListenersWorkDone() {
+    private void notifyListenersWorkDone(String data) {
         for (SampleWorkerListener listener : mListeners) {
-            listener.onWorkDone();
+            listener.onWorkDone(data);
         }
     }
 

@@ -1,7 +1,7 @@
 package com.techyourchance.threadexecutors;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -24,6 +24,8 @@ public class SampleActivity extends AppCompatActivity implements SampleWorker.Sa
     private final BackgroundThreadExecutor mBackgroundThreadExecutor = new BackgroundThreadExecutor();
     private final UiThreadExecutor mUiThreadExecutor = new UiThreadExecutor();
 
+    private final SampleDataRetriever mSampleDataRetriever = new SampleDataRetriever();
+
 
     private SampleWorker mSampleWorker;
 
@@ -43,8 +45,7 @@ public class SampleActivity extends AppCompatActivity implements SampleWorker.Sa
             }
         });
 
-        //
-        mSampleWorker = new SampleWorker(mBackgroundThreadExecutor, mUiThreadExecutor);
+        mSampleWorker = new SampleWorker(mSampleDataRetriever, mBackgroundThreadExecutor, mUiThreadExecutor);
     }
 
     @Override
@@ -66,7 +67,7 @@ public class SampleActivity extends AppCompatActivity implements SampleWorker.Sa
     }
 
     @Override
-    public void onWorkDone() {
+    public void onWorkDone(String data) {
         mProgressWorking.setVisibility(View.GONE);
         mTxtDone.setVisibility(View.VISIBLE);
     }
