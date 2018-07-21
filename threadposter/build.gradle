@@ -1,4 +1,32 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+ext {
+
+    bintrayRepo = "ThreadPoster"
+    bintrayName = "com.techyourchance.threadposter"
+
+    libraryName = 'threadposter'
+
+    publishedGroupId = 'com.techyourchance.threadposter'
+    artifact = 'threadposter'
+    libraryVersion = '0.7.0'
+
+    libraryDescription = 'Unit testable threading abstraction for Android'
+
+    siteUrl = 'https://github.com/techyourchance/thread-poster'
+    gitUrl = 'https://github.com/techyourchance/thread-poster.git'
+
+
+    developerId = 'techyourchance'
+    developerName = 'Vasiliy Zukanov'
+    developerEmail = 'techyourchance@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
 
 android {
     compileSdkVersion 25
@@ -23,3 +51,11 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile "org.mockito:mockito-core:2.10.0"
 }
+
+//Add these lines to publish library to bintray. This is the readymade scripts made by github user nuuneoi to make uploading to bintray easy.
+//Place it at the end of the file
+if (project.rootProject.file('local.properties').exists()) {
+    apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+    apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+}
+
