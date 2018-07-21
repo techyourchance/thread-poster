@@ -1,4 +1,4 @@
-package com.techyourchance.threadposter;
+package com.techyourchance.threadposterandroid;
 
 import org.junit.Before;
 import org.junit.ClassRule;

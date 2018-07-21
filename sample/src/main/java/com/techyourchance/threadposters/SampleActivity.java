@@ -8,7 +8,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.techyourchance.threadposterandroid.UiThreadPoster;
-import com.techyourchance.threadposter.BackgroundThreadPoster;
+import com.techyourchance.threadposterandroid.BackgroundThreadPoster;
 
 public class SampleActivity extends AppCompatActivity implements SampleWorker.SampleWorkerListener {
 

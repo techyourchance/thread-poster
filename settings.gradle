@@ -1,1 +1,1 @@
-include ':sample', ':threadposter', ':threadposter-android'
+include ':sample', ':threadposter-android'

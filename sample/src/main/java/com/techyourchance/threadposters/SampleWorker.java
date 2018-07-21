@@ -4,7 +4,7 @@ import android.support.annotation.UiThread;
 import android.support.annotation.WorkerThread;
 
 import com.techyourchance.threadposterandroid.UiThreadPoster;
-import com.techyourchance.threadposter.BackgroundThreadPoster;
+import com.techyourchance.threadposterandroid.BackgroundThreadPoster;
 
 import java.util.Collections;
 import java.util.Set;

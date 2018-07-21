@@ -1,4 +1,4 @@
-package com.techyourchance.threadposter;
+package com.techyourchance.threadposterandroid;
 
 
 import java.util.LinkedList;
