@@ -1,4 +1,4 @@
-package com.techyourchance.threadposterandroid;
+package com.techyourchance.threadposter;
 
 import android.os.Handler;
 

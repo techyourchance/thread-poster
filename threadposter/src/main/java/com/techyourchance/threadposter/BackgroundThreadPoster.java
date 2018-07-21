@@ -1,4 +1,4 @@
-package com.techyourchance.threadposterandroid;
+package com.techyourchance.threadposter;
 
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;

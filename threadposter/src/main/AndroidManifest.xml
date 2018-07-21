@@ -1,4 +1,4 @@
-<manifest package="com.techyourchance.threadposterandroid"
+<manifest package="com.techyourchance.threadposter"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application

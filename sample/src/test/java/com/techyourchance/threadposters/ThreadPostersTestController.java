@@ -1,9 +1,9 @@
 package com.techyourchance.threadposters;
 
-import com.techyourchance.threadposterandroid.UiThreadPoster;
-import com.techyourchance.threadposterandroid.UiThreadPosterTestDouble;
-import com.techyourchance.threadposterandroid.BackgroundThreadPoster;
-import com.techyourchance.threadposterandroid.BackgroundThreadPosterTestDouble;
+import com.techyourchance.threadposter.UiThreadPoster;
+import com.techyourchance.threadposter.UiThreadPosterTestDouble;
+import com.techyourchance.threadposter.BackgroundThreadPoster;
+import com.techyourchance.threadposter.BackgroundThreadPosterTestDouble;
 
 /**
  * This is a convenience wrapper class for tests. It also ensures the correct order of joining
