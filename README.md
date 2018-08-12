@@ -17,11 +17,6 @@ public class TextUpdater {
     private final UiThreadPoster mUiThreadPoster;
     private final TextView mTxtSample;
     
-    public TextUpdater(UiThreadPoster uiThreadPoster, TextView txtSample) {
-        mUiThreadPoster = uiThreadPoster;
-        mTxtSample = txtSample;
-    }
-    
     public void updateText(final String text) {
         mUiThreadPoster.post(new Runnable() {
             @Override
@@ -42,14 +37,6 @@ public class UpdateUserDetailsUseCase {
     private final BackgroundThreadPoster mBackgroundThreadPoster;
     private final UserDetailsEndpoint mUserDetailsEndpoint;
     private final UserDetailsCache mUserDetailsCache;
-
-    public UpdateUserDetailsUseCase(BackgroundThreadPoster backgroundThreadPoster, 
-                                    UserDetailsEndpoint userDetailsEndpoint,
-                                    UserDetailsCache userDetailsCache) {
-        mBackgroundThreadPoster = backgroundThreadPoster;
-        mUserDetailsEndpoint = userDetailsEndpoint;
-        mUserDetailsCache = userDetailsCache;
-    }
 
     public void fetchAndCacheUserDetails(final String userId) {
         mBackgroundThreadPoster.post(new Runnable() {
@@ -78,16 +65,6 @@ public class UpdateUserDetailsUseCase extends BaseObservable<UpdateUserDetailsUs
     private final UiThreadPoster mUiThreadPoster;
     private final UserDetailsEndpoint mUserDetailsEndpoint;
     private final UserDetailsCache mUserDetailsCache;
-
-    public UpdateUserDetailsUseCase(BackgroundThreadPoster backgroundThreadPoster,
-                                    UiThreadPoster uiThreadPoster,
-                                    UserDetailsEndpoint userDetailsEndpoint,
-                                    UserDetailsCache userDetailsCache) {
-        mBackgroundThreadPoster = backgroundThreadPoster;
-        mUiThreadPoster = uiThreadPoster;
-        mUserDetailsEndpoint = userDetailsEndpoint;
-        mUserDetailsCache = userDetailsCache;
-    }
 
     public void fetchAndCacheUserDetailsAndNotify(final String userId) {
         mBackgroundThreadPoster.post(new Runnable() {
