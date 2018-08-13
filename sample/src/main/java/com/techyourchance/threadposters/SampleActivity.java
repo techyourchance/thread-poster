@@ -7,68 +7,68 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.techyourchance.threadposter.UiThreadPoster;
-import com.techyourchance.threadposter.BackgroundThreadPoster;
+public class SampleActivity extends AppCompatActivity implements FetchDataUseCase.Listener {
 
-public class SampleActivity extends AppCompatActivity implements SampleWorker.SampleWorkerListener {
-
-    private Button mBtnStart;
+    private Button mBtnFetchData;
     private ProgressBar mProgressWorking;
-    private TextView mTxtDone;
+    private TextView mTxtData;
 
-    /*
-    IMPORTANT:
-    Both BackgroundThreadPoster and UiThreadPoster should be global objects. Can be easily
-    achieved using dependency injection framework that supports global objects ("singletons")
-     */
-    private final BackgroundThreadPoster mBackgroundThreadPoster = new BackgroundThreadPoster();
-    private final UiThreadPoster mUiThreadPoster = new UiThreadPoster();
-
-    private final SampleDataRetriever mSampleDataRetriever = new SampleDataRetriever();
-
-
-    private SampleWorker mSampleWorker;
+    private FetchDataUseCase mFetchDataUseCase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample);
 
-        mBtnStart = (Button) findViewById(R.id.btn_start);
-        mProgressWorking = (ProgressBar) findViewById(R.id.progress_working);
-        mTxtDone = (TextView) findViewById(R.id.txt_done);
+        mFetchDataUseCase = ((SampleApplication)getApplication()).getFetchDataUseCase();
 
-        mBtnStart.setOnClickListener(new View.OnClickListener() {
+        mBtnFetchData = (Button) findViewById(R.id.btn_fetch_data);
+        mProgressWorking = (ProgressBar) findViewById(R.id.progress_working);
+        mTxtData = (TextView) findViewById(R.id.txt_data);
+
+        mBtnFetchData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                doWork();
+                fetchData();
             }
         });
 
-        mSampleWorker = new SampleWorker(mSampleDataRetriever, mBackgroundThreadPoster, mUiThreadPoster);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mSampleWorker.registerListener(this);
+        mFetchDataUseCase.registerListener(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mSampleWorker.unregisterListener(this);
+        mFetchDataUseCase.unregisterListener(this);
     }
 
-    private void doWork() {
-        mBtnStart.setVisibility(View.GONE);
-        mProgressWorking.setVisibility(View.VISIBLE);
-        mSampleWorker.doWork();
+    private void fetchData() {
+        mBtnFetchData.setVisibility(View.GONE);
+        showProgressIndication();
+        mFetchDataUseCase.fetchData();
     }
 
     @Override
-    public void onWorkDone(String data) {
+    public void onDataFetched(String data) {
+        hideProgressIndication();
+        showData(data);
+    }
+
+    private void showData(String data) {
+        mTxtData.setText(data);
+        mTxtData.setVisibility(View.VISIBLE);
+    }
+
+    private void hideProgressIndication() {
         mProgressWorking.setVisibility(View.GONE);
-        mTxtDone.setVisibility(View.VISIBLE);
+    }
+
+    private void showProgressIndication() {
+        mProgressWorking.setVisibility(View.VISIBLE);
     }
 }

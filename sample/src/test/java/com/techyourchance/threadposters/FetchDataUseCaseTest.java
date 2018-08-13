@@ -13,38 +13,38 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class SampleWorkerTest {
+public class FetchDataUseCaseTest {
 
     private static final String TEST_DATA = "TEST_DATA";
 
     private ThreadPostersTestController mThreadPostersTestController = new ThreadPostersTestController();
 
-    private SampleDataRetriever mSampleDataRetrieverMock;
-    private SampleWorker.SampleWorkerListener mListener1;
-    private SampleWorker.SampleWorkerListener mListener2;
+    private FakeDataRetriever mFakeDataRetrieverMock;
+    private FetchDataUseCase.Listener mListener1;
+    private FetchDataUseCase.Listener mListener2;
 
-    private SampleWorker SUT;
+    private FetchDataUseCase SUT;
 
     @Before
     public void setup() throws Exception {
-        mSampleDataRetrieverMock = mock(SampleDataRetriever.class);
+        mFakeDataRetrieverMock = mock(FakeDataRetriever.class);
 
-        when(mSampleDataRetrieverMock.getData()).thenReturn(TEST_DATA);
+        when(mFakeDataRetrieverMock.getData()).thenReturn(TEST_DATA);
 
-        SUT = new SampleWorker(
-                mSampleDataRetrieverMock,
+        SUT = new FetchDataUseCase(
+                mFakeDataRetrieverMock,
                 mThreadPostersTestController.getBackgroundThreadPosterTestDouble(),
                 mThreadPostersTestController.getUiThreadPosterTestDouble());
 
-        mListener1 = mock(SampleWorker.SampleWorkerListener.class);
-        mListener2 = mock(SampleWorker.SampleWorkerListener.class);
+        mListener1 = mock(FetchDataUseCase.Listener.class);
+        mListener2 = mock(FetchDataUseCase.Listener.class);
     }
 
     @Test
     public void doWork_noListeners_completesWithoutErrors() throws Exception {
         // Arrange
         // Act
-        SUT.doWork();
+        SUT.fetchData();
         // Assert
         assertThat(true, is(true));
     }
@@ -56,15 +56,15 @@ public class SampleWorkerTest {
         SUT.registerListener(mListener2);
         ArgumentCaptor<String> ac = ArgumentCaptor.forClass(String.class);
         // Act
-        SUT.doWork();
+        SUT.fetchData();
         // Assert
 
         // needs to be called before assertions in order for all threads to complete and
         // all side effects to be present
         mThreadPostersTestController.join();
 
-        verify(mListener1, times(1)).onWorkDone(ac.capture());
-        verify(mListener2, times(1)).onWorkDone(ac.capture());
+        verify(mListener1, times(1)).onDataFetched(ac.capture());
+        verify(mListener2, times(1)).onDataFetched(ac.capture());
         List<String> dataList = ac.getAllValues();
         assertThat(dataList.get(0), is(TEST_DATA));
         assertThat(dataList.get(1), is(TEST_DATA));

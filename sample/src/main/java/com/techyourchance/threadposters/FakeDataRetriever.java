@@ -2,7 +2,7 @@ package com.techyourchance.threadposters;
 
 import android.support.annotation.WorkerThread;
 
-public class SampleDataRetriever {
+public class FakeDataRetriever {
 
     @WorkerThread
     public String getData() {
