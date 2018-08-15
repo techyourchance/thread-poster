@@ -5,13 +5,14 @@ buildscript {
         google()
         jcenter()
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:3.1.4'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
 
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
     }
 }
@@ -21,6 +22,14 @@ allprojects {
         google()
         jcenter()
     }
+}
+
+ext {
+    compileSdkVersion = 27
+    buildToolsVersion = "27.0.3"
+    supportLibVersion = "27.1.1"
+    junitVersion = "4.12"
+    mockitoVersion = "2.18.3"
 }
 
 
