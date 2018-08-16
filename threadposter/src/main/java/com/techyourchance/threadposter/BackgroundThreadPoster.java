@@ -5,10 +5,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-/**
- * This class is used in order to implement standardized, readable and unit-testable multithreading
- * in applications.
- */
 public class BackgroundThreadPoster {
 
     private final ThreadPoolExecutor mThreadPoolExecutor;
@@ -18,8 +14,7 @@ public class BackgroundThreadPoster {
     }
 
     /**
-     * Execute {@link Runnable} on background thread. Clients should assume that the execution
-     * thread will be totally random.
+     * Execute {@link Runnable} on a random background thread.
      * @param runnable {@link Runnable} instance containing the code that should be executed
      */
     public final void post(Runnable runnable) {
@@ -47,7 +42,7 @@ public class BackgroundThreadPoster {
     /**
      * This factory method constructs the instance of {@link ThreadPoolExecutor} that is used by
      * {@link BackgroundThreadPoster} internally.
-     * Override only if you absolutely know what you're doing.
+     * Override only if you're absolutely sure that you know what you're doing.
      */
     protected ThreadPoolExecutor newThreadPoolExecutor() {
         // copied from Executors.newCachedThreadPool(), but changed core pool size to 1 in order
