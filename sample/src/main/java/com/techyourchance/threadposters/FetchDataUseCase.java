@@ -14,19 +14,20 @@ public class FetchDataUseCase {
 
     public interface Listener {
         void onDataFetched(String data);
+        void onDataFetchFailed();
     }
 
-    private final FakeDataRetriever mFakeDataRetriever;
+    private final FakeDataFetcher mFakeDataFetcher;
     private final BackgroundThreadPoster mBackgroundThreadPoster;
     private final UiThreadPoster mUiThreadPoster;
 
     private final Set<Listener> mListeners = Collections.newSetFromMap(
             new ConcurrentHashMap<Listener, Boolean>());
 
-    public FetchDataUseCase(FakeDataRetriever fakeDataRetriever,
+    public FetchDataUseCase(FakeDataFetcher fakeDataFetcher,
                             BackgroundThreadPoster backgroundThreadPoster,
                             UiThreadPoster uiThreadPoster) {
-        mFakeDataRetriever = fakeDataRetriever;
+        mFakeDataFetcher = fakeDataFetcher;
         mBackgroundThreadPoster = backgroundThreadPoster;
         mUiThreadPoster = uiThreadPoster;
     }
@@ -51,14 +52,30 @@ public class FetchDataUseCase {
 
     @WorkerThread
     private void fetchDataSync() {
-        final String data = mFakeDataRetriever.getData();
-        // notify listeners on UI thread
-        mUiThreadPoster.post(new Runnable() {
-            @Override
-            public void run() {
-                notifySuccess(data);
-            }
-        });
+        try {
+            final String data = mFakeDataFetcher.getData();
+            mUiThreadPoster.post(new Runnable() { // notify listeners on UI thread
+                @Override
+                public void run() {
+                    notifySuccess(data);
+                }
+            });
+        } catch (FakeDataFetcher.DataFetchException e) {
+            mUiThreadPoster.post(new Runnable() { // notify listeners on UI thread
+                @Override
+                public void run() {
+                    notifyFailure();
+                }
+            });
+        }
+
+    }
+
+    @UiThread
+    private void notifyFailure() {
+        for (Listener listener : mListeners) {
+            listener.onDataFetchFailed();
+        }
     }
 
     @UiThread

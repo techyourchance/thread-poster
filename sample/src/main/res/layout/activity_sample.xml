@@ -4,15 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    tools:context="com.techyourchance.threadposters.SampleActivity">
+    android:padding="20dp">
 
     <Button
         android:id="@+id/btn_fetch_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Fetch data!"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true"
+        android:text="Fetch data!"/>
 
     <ProgressBar
         android:id="@+id/progress_working"
@@ -25,7 +24,20 @@
         android:id="@+id/txt_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/btn_fetch_data"
+        android:layout_marginTop="10dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/txt_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/btn_fetch_data"
+        android:layout_marginTop="10dp"
+        android:text="error"
+        android:textColor="@android:color/holo_red_dark"
         android:visibility="gone"/>
 
 </RelativeLayout>

@@ -12,6 +12,7 @@ public class SampleActivity extends AppCompatActivity implements FetchDataUseCas
     private Button mBtnFetchData;
     private ProgressBar mProgressWorking;
     private TextView mTxtData;
+    private TextView mTxtError;
 
     private FetchDataUseCase mFetchDataUseCase;
 
@@ -25,6 +26,7 @@ public class SampleActivity extends AppCompatActivity implements FetchDataUseCas
         mBtnFetchData = (Button) findViewById(R.id.btn_fetch_data);
         mProgressWorking = (ProgressBar) findViewById(R.id.progress_working);
         mTxtData = (TextView) findViewById(R.id.txt_data);
+        mTxtError = (TextView) findViewById(R.id.txt_error);
 
         mBtnFetchData.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,8 +50,7 @@ public class SampleActivity extends AppCompatActivity implements FetchDataUseCas
     }
 
     private void fetchData() {
-        mBtnFetchData.setVisibility(View.GONE);
-        showProgressIndication();
+        showProgressIndicationAndHideOthers();
         mFetchDataUseCase.fetchData();
     }
 
@@ -62,13 +63,28 @@ public class SampleActivity extends AppCompatActivity implements FetchDataUseCas
     private void showData(String data) {
         mTxtData.setText(data);
         mTxtData.setVisibility(View.VISIBLE);
+        mBtnFetchData.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onDataFetchFailed() {
+        hideProgressIndication();
+        showError();
+    }
+
+    private void showError() {
+        mTxtError.setVisibility(View.VISIBLE);
+        mBtnFetchData.setVisibility(View.VISIBLE);
+    }
+
+    private void showProgressIndicationAndHideOthers() {
+        mBtnFetchData.setVisibility(View.GONE);
+        mTxtData.setVisibility(View.GONE);
+        mTxtError.setVisibility(View.GONE);
+        mProgressWorking.setVisibility(View.VISIBLE);
     }
 
     private void hideProgressIndication() {
         mProgressWorking.setVisibility(View.GONE);
-    }
-
-    private void showProgressIndication() {
-        mProgressWorking.setVisibility(View.VISIBLE);
     }
 }

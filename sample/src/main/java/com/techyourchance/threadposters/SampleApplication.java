@@ -14,9 +14,9 @@ public class SampleApplication extends Application {
     private final BackgroundThreadPoster mBackgroundThreadPoster = new BackgroundThreadPoster();
     private final UiThreadPoster mUiThreadPoster = new UiThreadPoster();
 
-    private final FakeDataRetriever mFakeDataRetriever = new FakeDataRetriever();
+    private final FakeDataFetcher mFakeDataFetcher = new FakeDataFetcher();
     private final FetchDataUseCase mFetchDataUseCase =
-            new FetchDataUseCase(mFakeDataRetriever, mBackgroundThreadPoster, mUiThreadPoster);
+            new FetchDataUseCase(mFakeDataFetcher, mBackgroundThreadPoster, mUiThreadPoster);
 
     public FetchDataUseCase getFetchDataUseCase() {
         return mFetchDataUseCase;

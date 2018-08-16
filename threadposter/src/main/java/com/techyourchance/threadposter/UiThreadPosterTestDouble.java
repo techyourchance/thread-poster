@@ -13,7 +13,7 @@ import java.util.Queue;
  * to a new background thread. Only one background thread is allowed to run at a time, thus
  * simulating a serial execution of {@link Runnable}s.
  */
-public class UiThreadPosterTestDouble extends UiThreadPoster {
+/* pp */  class UiThreadPosterTestDouble extends UiThreadPoster {
 
     private final Object MONITOR = new Object();
 

@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  * a happens-before relationship between any {@link Runnable} sent to execution and subsequent
  * test assertions.
  */
-public class BackgroundThreadPosterTestDouble extends BackgroundThreadPoster {
+/* pp */  class BackgroundThreadPosterTestDouble extends BackgroundThreadPoster {
 
     private final Object MONITOR = new Object();
 
