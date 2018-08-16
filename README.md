@@ -122,6 +122,136 @@ public class FetchDataUseCase {
 }
 ```
 
+## Unit Testing
+
+This library allows for easy unit testing of multithreaded code.
+
+**Important note: no amount of unit testing can guarantee that your code is thread-safe. In other words, even if your unit tests pass, your code can still be subject to race conditions, deadlocks, livelocks, etc.**
+
+To support unit testing, ThreadPosters library is shipped with test double implementations for both `UiThreadPoster` and `BackgroundThreadPoster`. The core feature of these test doubles is that they are truly multi-threaded. In other words, when you unit test using these test doubles, you exercise your code in real multi-threaded environment which is the best approximation of the real production setting.
+
+### Benefits and drawbacks of multi-threaded unit testing
+
+The approach employed by ThreadPoster's test doubles has its benefits and drawbacks.
+
+**Benefits of multi-threaded unit testing:**
+1. Exercises the code in real production setting.
+2. Has a chance to find multi-threading bugs. This will manifest itself in the form of "flaky" tests (tests that fail ocassionally).
+
+**Drawbacks of multi-threaded unit testing:**
+1. Longer unit tests execution times.
+2. Requires user assistance in the form of an additional step in each test case (`join()` calls in the examples below).
+
+In my opinion, the second drawback is just a minor annoyance. However, longer unit tests execution times is a severe issue.
+
+On my machine, test cases that use ThreadPoster test doubles execute in ~10ms (as opposed to <1ms for plain Java). That's not an issue if you have 100 multi-threaded test cases, but it's a show stopper for proper TDD if you have 1000.
+
+The upside is that absolute majority of your classes shoudln't be multi-threaded, which means that the overall percentage of slow unit tests should be low.
+
+I'm currently working on ways to optimize the test times, but you should definitely keep this drawback in mind if you intend to unit test using ThreadPoster test doubles.
+
+### Example unit test
+
+Below code shows a unit test that makes use of ThreadPoster test doubles. It's part of the sample project.
+
+Note the calls to `mThreadPostersTestDouble.join()` in tests - that's the drawback number two. Since test cases become multithreaded, JUnit can't control tests' execution by itself anymore. 
+Therefore, you'll need to call `mThreadPostersTestDouble.join()` before the assertions stage in each of your test cases. This makes sure that all involved threads run to completion and their side effects will be visible during assertions stage.
+
+```
+public class FetchDataUseCaseTest {
+
+    private static final String TEST_DATA = "testData";
+
+    private ThreadPostersTestDouble mThreadPostersTestDouble = new ThreadPostersTestDouble();
+
+    private FakeDataFetcher mFakeDataFetcherMock;
+    private FetchDataUseCase.Listener mListener1;
+    private FetchDataUseCase.Listener mListener2;
+
+    private FetchDataUseCase SUT;
+
+    @Before
+    public void setup() throws Exception {
+        mFakeDataFetcherMock = mock(FakeDataFetcher.class);
+
+        SUT = new FetchDataUseCase(
+                mFakeDataFetcherMock,
+                mThreadPostersTestDouble.getBackgroundTestDouble(),
+                mThreadPostersTestDouble.getUiTestDouble());
+
+        mListener1 = mock(FetchDataUseCase.Listener.class);
+        mListener2 = mock(FetchDataUseCase.Listener.class);
+    }
+
+    @Test
+    public void fetchData_successNoListeners_completesWithoutErrors() throws Exception {
+        // Arrange
+        success();
+        // Act
+        SUT.fetchData();
+        // Assert
+
+        // needs to be called before assertions in order for all threads to complete and
+        // all side effects to be present
+        mThreadPostersTestDouble.join();
+
+        assertThat(true, is(true));
+    }
+
+    @Test
+    public void fetchData_successMultipleListeners_notifiedWithCorrectData() throws Exception {
+        // Arrange
+        success();
+        ArgumentCaptor<String> ac = ArgumentCaptor.forClass(String.class);
+        // Act
+        SUT.registerListener(mListener1);
+        SUT.registerListener(mListener2);
+        SUT.fetchData();
+        // Assert
+
+        // needs to be called before assertions in order for all threads to complete and
+        // all side effects to be present
+        mThreadPostersTestDouble.join();
+
+        verify(mListener1).onDataFetched(ac.capture());
+        verify(mListener2).onDataFetched(ac.capture());
+        List<String> dataList = ac.getAllValues();
+        assertThat(dataList.get(0), is(TEST_DATA));
+        assertThat(dataList.get(1), is(TEST_DATA));
+    }
+
+    @Test
+    public void fetchData_failureMultipleListeners_notifiedOfFailure() throws Exception {
+        // Arrange
+        failure();
+        // Act
+        SUT.registerListener(mListener1);
+        SUT.registerListener(mListener2);
+        SUT.fetchData();
+        // Assert
+
+        // needs to be called before assertions in order for all threads to complete and
+        // all side effects to be present
+        mThreadPostersTestDouble.join();
+
+        verify(mListener1).onDataFetchFailed();
+        verify(mListener2).onDataFetchFailed();
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Helper methods
+    // ---------------------------------------------------------------------------------------------
+
+    private void success() throws FakeDataFetcher.DataFetchException {
+        when(mFakeDataFetcherMock.getData()).thenReturn(TEST_DATA);
+    }
+
+    private void failure() throws FakeDataFetcher.DataFetchException {
+        doThrow(new FakeDataFetcher.DataFetchException()).when(mFakeDataFetcherMock).getData();
+    }
+}
+```
+
 ## License
 
 This project is licensed under the Apache-2.0 License - see the [LICENSE.txt](LICENSE.txt) file for details
