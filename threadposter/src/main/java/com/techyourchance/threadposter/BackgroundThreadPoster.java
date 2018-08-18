@@ -7,6 +7,9 @@ import java.util.concurrent.TimeUnit;
 
 public class BackgroundThreadPoster {
 
+    private static final int CORE_THREADS = 3;
+    private static final long KEEP_ALIVE_SECONDS = 60L;
+
     private final ThreadPoolExecutor mThreadPoolExecutor;
 
     public BackgroundThreadPoster() {
@@ -41,16 +44,15 @@ public class BackgroundThreadPoster {
 
     /**
      * This factory method constructs the instance of {@link ThreadPoolExecutor} that is used by
-     * {@link BackgroundThreadPoster} internally.
-     * Override only if you're absolutely sure that you know what you're doing.
+     * {@link BackgroundThreadPoster} internally.<br>
+     * The returned executor has sensible defaults for Android applications.<br>
+     * Override only if you're ABSOLUTELY sure that you know what you're doing.
      */
     protected ThreadPoolExecutor newThreadPoolExecutor() {
-        // copied from Executors.newCachedThreadPool(), but changed core pool size to 1 in order
-        // to achieve better average response time
         return new ThreadPoolExecutor(
-                1,
+                CORE_THREADS,
                 Integer.MAX_VALUE,
-                60L,
+                KEEP_ALIVE_SECONDS,
                 TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>()
         );
