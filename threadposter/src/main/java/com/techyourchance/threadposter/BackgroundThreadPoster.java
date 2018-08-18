@@ -26,7 +26,7 @@ public class BackgroundThreadPoster {
      * In general, this method shouldn't be used and is provided only for the purpose of
      * integration with existing libraries and frameworks.
      */
-    public final ThreadPoolExecutor getThreadPoolExecutor() {
+    protected final ThreadPoolExecutor getThreadPoolExecutor() {
         return mThreadPoolExecutor;
     }
 
@@ -35,7 +35,7 @@ public class BackgroundThreadPoster {
      * In general, this method shouldn't be used and is provided only for the purpose of
      * integration with existing libraries and frameworks.
      */
-    public final ThreadFactory getThreadFactory() {
+    protected final ThreadFactory getThreadFactory() {
         return getThreadPoolExecutor().getThreadFactory();
     }
 
