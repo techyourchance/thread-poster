@@ -9,7 +9,7 @@ Lightweight library for unit testable and expressive multi-threading in Android.
 To use ThreadPoster in your project, add this line to your Gradle dependencies configuration:
 
 ```
-implementation 'com.techyourchance.threadposter:threadposter:0.8.0'
+implementation 'com.techyourchance.threadposter:threadposter:0.8.2'
 ```
 
 ## Usage
@@ -141,8 +141,6 @@ The approach employed by ThreadPoster's test doubles has its benefits and drawba
 **Drawbacks of multi-threaded unit testing:**
 1. Longer unit tests execution times.
 2. Requires user assistance in the form of an additional step in each test case (`join()` calls in the examples below).
-
-In my opinion, the second drawback is just a minor annoyance. However, longer unit tests execution times is a severe issue.
 
 On my machine, test cases that use ThreadPoster test doubles execute in ~10ms (as opposed to <1ms for plain Java). That's not an issue if you have 100 multi-threaded test cases, but it's a show stopper for proper TDD if you have 1000.
 
