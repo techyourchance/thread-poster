@@ -1,6 +1,6 @@
 package com.techyourchance.threadposters;
 
-import com.techyourchance.threadposter.ThreadPostersTestDouble;
+import com.techyourchance.threadposter.testdoubles.ThreadPostersTestDouble;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +12,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 

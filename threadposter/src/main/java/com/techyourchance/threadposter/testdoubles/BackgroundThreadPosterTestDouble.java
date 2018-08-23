@@ -1,5 +1,7 @@
-package com.techyourchance.threadposter;
+package com.techyourchance.threadposter.testdoubles;
 
+
+import com.techyourchance.threadposter.BackgroundThreadPoster;
 
 import java.util.LinkedList;
 import java.util.Queue;

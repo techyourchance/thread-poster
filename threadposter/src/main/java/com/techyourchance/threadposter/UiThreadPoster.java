@@ -20,7 +20,7 @@ public class UiThreadPoster {
     }
 
     /**
-     * The only reason this method exists is that {@link UiThreadPosterTestDouble} can override
+     * The only reason this method exists is that UiThreadPosterTestDouble can override
      * it.
      */
     protected Handler getMainHandler() {

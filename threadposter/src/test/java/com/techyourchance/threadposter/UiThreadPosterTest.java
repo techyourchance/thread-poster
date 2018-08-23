@@ -22,7 +22,7 @@ public class UiThreadPosterTest {
         mUiHandlerMock = mock(Handler.class);
         SUT = new UiThreadPoster() {
             @Override
-            Handler getMainHandler() {
+            protected Handler getMainHandler() {
                 return mUiHandlerMock;
             }
         };

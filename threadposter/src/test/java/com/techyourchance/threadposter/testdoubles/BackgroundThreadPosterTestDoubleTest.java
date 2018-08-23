@@ -1,4 +1,5 @@
-package com.techyourchance.threadposter;
+package com.techyourchance.threadposter.testdoubles;
+
 
 import org.junit.Before;
 import org.junit.ClassRule;

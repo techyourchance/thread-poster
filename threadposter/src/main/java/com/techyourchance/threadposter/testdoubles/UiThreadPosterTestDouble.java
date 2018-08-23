@@ -1,6 +1,8 @@
-package com.techyourchance.threadposter;
+package com.techyourchance.threadposter.testdoubles;
 
 import android.os.Handler;
+
+import com.techyourchance.threadposter.UiThreadPoster;
 
 import java.util.LinkedList;
 import java.util.Queue;

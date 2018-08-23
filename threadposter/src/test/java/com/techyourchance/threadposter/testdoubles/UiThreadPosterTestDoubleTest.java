@@ -1,4 +1,6 @@
-package com.techyourchance.threadposter;
+package com.techyourchance.threadposter.testdoubles;
+
+import com.techyourchance.threadposter.testdoubles.UiThreadPosterTestDouble;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -1,9 +1,7 @@
-package com.techyourchance.threadposter;
+package com.techyourchance.threadposter.testdoubles;
 
-import com.techyourchance.threadposter.UiThreadPoster;
-import com.techyourchance.threadposter.UiThreadPosterTestDouble;
 import com.techyourchance.threadposter.BackgroundThreadPoster;
-import com.techyourchance.threadposter.BackgroundThreadPosterTestDouble;
+import com.techyourchance.threadposter.UiThreadPoster;
 
 /**
  * This class should be used in unit tests to obtain test doubles of {@link UiThreadPoster} and
