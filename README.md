@@ -15,23 +15,18 @@ implementation 'com.techyourchance.threadposter:threadposter:0.8.2'
 ## Usage
 At the core of this library are two simple classes: `UiThreadPoster` and `BackgroundThreadPoster`.
 
-Code style note: if you're concerned with "boilerplate", you can replace explicit `Runnables` in the examples below with lambdas.
-
 ### Executing code on UI thread
 In the following example, `updateText(String)` can be safely called on any thread. The actual UI update will always take place on UI thread:
 
-```
+```java
 public class TextUpdater {
 
     private final UiThreadPoster mUiThreadPoster;
     private final TextView mTxtSample;
     
     public void updateText(final String text) {
-        mUiThreadPoster.post(new Runnable() {
-            @Override
-            public void run() {
-                mTxtSample.setText(text);
-            }
+        mUiThreadPoster.post(() -> {
+            mTxtSample.setText(text);
         });
     }
 }
@@ -40,7 +35,7 @@ public class TextUpdater {
 ### Executing code on "background" thread
 In the following example, `fetchAndCacheUserDetails(String)` can be safely called on any thread. The actual network request and data caching will always take place on background thread (non-UI thread):
 
-```
+```java
 public class UpdateUserDetailsUseCase {
 
     private final BackgroundThreadPoster mBackgroundThreadPoster;
@@ -48,12 +43,9 @@ public class UpdateUserDetailsUseCase {
     private final UserDetailsCache mUserDetailsCache;
 
     public void fetchAndCacheUserDetails(final String userId) {
-        mBackgroundThreadPoster.post(new Runnable() {
-            @Override
-            public void run() {
-                UserDetails userDetails = mUserDetailsEndpoint.fetchUserDetails(userId);
-                mUserDetailsCache.cacheUserDetails(userDetails);
-            }
+        mBackgroundThreadPoster.post(() -> {
+            UserDetails userDetails = mUserDetailsEndpoint.fetchUserDetails(userId);
+            mUserDetailsCache.cacheUserDetails(userDetails);
         });
     }
 }
@@ -62,7 +54,7 @@ public class UpdateUserDetailsUseCase {
 ### Executing code on "background" thread and notifying Observers on UI thread
 In the [following example](sample/src/main/java/com/techyourchance/threadposters/FetchDataUseCase.java), `fetchData()` can be safely called on any thread. The actual data fetch will always take place on background thread, and the observers will always be notified on UI thread:
 
-```
+```java
 public class FetchDataUseCase {
 
     public interface Listener {
@@ -76,11 +68,8 @@ public class FetchDataUseCase {
 
     public void fetchData() {
         // offload work to background thread
-        mBackgroundThreadPoster.post(new Runnable() {
-            @Override
-            public void run() {
-                fetchDataSync();
-            }
+        mBackgroundThreadPoster.post(() -> {
+            fetchDataSync();
         });
     }
 
@@ -88,18 +77,12 @@ public class FetchDataUseCase {
     private void fetchDataSync() {
         try {
             final String data = mFakeDataFetcher.getData();
-            mUiThreadPoster.post(new Runnable() { // notify listeners on UI thread
-                @Override
-                public void run() {
-                    notifySuccess(data);
-                }
+            mUiThreadPoster.post(() -> {
+                notifySuccess(data); // notify listeners on UI thread
             });
         } catch (FakeDataFetcher.DataFetchException e) {
-            mUiThreadPoster.post(new Runnable() { // notify listeners on UI thread
-                @Override
-                public void run() {
-                    notifyFailure();
-                }
+            mUiThreadPoster.post(() -> {
+                notifyFailure(); // notify listeners on UI thread
             });
         }
 
@@ -155,7 +138,7 @@ Below code shows a unit test that makes use of ThreadPoster test doubles. It's p
 Note the calls to `mThreadPostersTestDouble.join()` in tests - that's the drawback number two. Since test cases become multithreaded, JUnit can't control tests' execution by itself anymore. 
 Therefore, you'll need to call `mThreadPostersTestDouble.join()` before the assertions stage in each of your test cases. This makes sure that all involved threads run to completion and their side effects will be visible during assertions stage.
 
-```
+```java
 public class FetchDataUseCaseTest {
 
     private static final String TEST_DATA = "testData";
@@ -199,7 +182,7 @@ public class FetchDataUseCaseTest {
     @Test
     public void fetchData_successMultipleListeners_notifiedWithCorrectData() throws Exception {
         // Arrange
-        success();
+        when(mFakeDataFetcherMock.getData()).thenReturn(TEST_DATA);
         ArgumentCaptor<String> ac = ArgumentCaptor.forClass(String.class);
         // Act
         SUT.registerListener(mListener1);
@@ -211,17 +194,14 @@ public class FetchDataUseCaseTest {
         // all side effects to be present
         mThreadPostersTestDouble.join();
 
-        verify(mListener1).onDataFetched(ac.capture());
-        verify(mListener2).onDataFetched(ac.capture());
-        List<String> dataList = ac.getAllValues();
-        assertThat(dataList.get(0), is(TEST_DATA));
-        assertThat(dataList.get(1), is(TEST_DATA));
+        verify(mListener1).onDataFetched(TEST_DATA);
+        verify(mListener2).onDataFetched(TEST_DATA);
     }
 
     @Test
     public void fetchData_failureMultipleListeners_notifiedOfFailure() throws Exception {
         // Arrange
-        failure();
+        doThrow(new FakeDataFetcher.DataFetchException()).when(mFakeDataFetcherMock).getData();
         // Act
         SUT.registerListener(mListener1);
         SUT.registerListener(mListener2);
@@ -236,17 +216,6 @@ public class FetchDataUseCaseTest {
         verify(mListener2).onDataFetchFailed();
     }
 
-    // ---------------------------------------------------------------------------------------------
-    // Helper methods
-    // ---------------------------------------------------------------------------------------------
-
-    private void success() throws FakeDataFetcher.DataFetchException {
-        when(mFakeDataFetcherMock.getData()).thenReturn(TEST_DATA);
-    }
-
-    private void failure() throws FakeDataFetcher.DataFetchException {
-        doThrow(new FakeDataFetcher.DataFetchException()).when(mFakeDataFetcherMock).getData();
-    }
 }
 ```
 
