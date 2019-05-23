@@ -167,7 +167,7 @@ public class FetchDataUseCaseTest {
     @Test
     public void fetchData_successNoListeners_completesWithoutErrors() throws Exception {
         // Arrange
-        success();
+        when(mFakeDataFetcherMock.getData()).thenReturn(TEST_DATA);
         // Act
         SUT.fetchData();
         // Assert
