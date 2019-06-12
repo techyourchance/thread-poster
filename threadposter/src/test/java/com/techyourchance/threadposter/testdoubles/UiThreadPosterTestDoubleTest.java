@@ -10,24 +10,7 @@ import static org.hamcrest.core.Is.is;
 
 public class UiThreadPosterTestDoubleTest {
 
-    private static final int TEST_TIMEOUT_MS = 1000;
-    private static final int TEST_DELAY_MS = TEST_TIMEOUT_MS / 10;
-
-    /**
-     * This class will be used in order to check side effects in tests
-     */
-    private class Appender {
-
-        private String mString = "";
-
-        private void append(String string) {
-            mString += string;
-        }
-
-        private String getString() {
-            return mString;
-        }
-    }
+    private static final int TEST_DELAY_MS = 10;
 
     private UiThreadPosterTestDouble SUT;
 
@@ -43,11 +26,6 @@ public class UiThreadPosterTestDoubleTest {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 appender.append("a");
             }
         };
@@ -66,18 +44,12 @@ public class UiThreadPosterTestDoubleTest {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 appender.append("a");
             }
         };
         // Act
         SUT.post(runnable);
         // Assert
-        Thread.sleep(TEST_DELAY_MS);
         SUT.join();
         assertThat(appender.getString(), is("a"));
     }
@@ -90,33 +62,18 @@ public class UiThreadPosterTestDoubleTest {
         Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 appender.append("a");
             }
         };
         Runnable runnable2 = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 appender.append("b");
             }
         };
         Runnable runnable3 = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 appender.append("c");
             }
         };
@@ -129,7 +86,6 @@ public class UiThreadPosterTestDoubleTest {
         assertThat(appender.getString(), is(""));
     }
 
-
     @Test
     public void executeThenJoin_multipleRunnables_sideEffectsVisibleAfterJoinInOrder() throws Exception {
         // Arrange
@@ -137,33 +93,18 @@ public class UiThreadPosterTestDoubleTest {
         Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 appender.append("a");
             }
         };
         Runnable runnable2 = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 appender.append("b");
             }
         };
         Runnable runnable3 = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 appender.append("c");
             }
         };
@@ -172,8 +113,55 @@ public class UiThreadPosterTestDoubleTest {
         SUT.post(runnable2);
         SUT.post(runnable3);
         // Assert
-        Thread.sleep(TEST_DELAY_MS);
         SUT.join();
         assertThat(appender.getString(), is("abc"));
+    }
+
+
+    @Test
+    public void executeThenJoin_multipleNestedRunnables_sideEffectsVisibleAfterJoinInReversedOrder() throws Exception {
+        // Arrange
+        final Appender appender = new Appender();
+        final Runnable runnable1 = new Runnable() {
+            @Override
+            public void run() {
+                appender.append("a");
+            }
+        };
+        final Runnable runnable2 = new Runnable() {
+            @Override
+            public void run() {
+                SUT.post(runnable1);
+                appender.append("b");
+            }
+        };
+        final Runnable runnable3 = new Runnable() {
+            @Override
+            public void run() {
+                SUT.post(runnable2);
+                appender.append("c");
+            }
+        };
+        // Act
+        SUT.post(runnable3);
+        // Assert
+        SUT.join();
+        assertThat(appender.getString(), is("cba"));
+    }
+
+    /**
+     * This class will be used in order to check side effects in tests
+     */
+    private class Appender {
+
+        private String mString = "";
+
+        private synchronized void append(String string) {
+            mString += string;
+        }
+
+        private synchronized String getString() {
+            return mString;
+        }
     }
 }
