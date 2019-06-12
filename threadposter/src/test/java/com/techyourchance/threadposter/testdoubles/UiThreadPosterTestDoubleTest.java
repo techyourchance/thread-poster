@@ -1,9 +1,9 @@
 package com.techyourchance.threadposter.testdoubles;
 
-import com.techyourchance.threadposter.testdoubles.UiThreadPosterTestDouble;
-
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -11,6 +11,9 @@ import static org.hamcrest.core.Is.is;
 public class UiThreadPosterTestDoubleTest {
 
     private static final int TEST_DELAY_MS = 10;
+
+    @ClassRule
+    public final static Timeout TIMEOUT = Timeout.seconds(5);
 
     private UiThreadPosterTestDouble SUT;
 

@@ -14,27 +14,10 @@ import static org.hamcrest.core.Is.is;
 
 public class BackgroundThreadPosterTestDoubleTest {
 
-    private static final int TEST_TIMEOUT_MS = 1000;
-    private static final int TEST_DELAY_MS = TEST_TIMEOUT_MS / 10;
+    private static final int TEST_DELAY_MS = 10;
 
     @ClassRule
-    public final static Timeout TIMEOUT = Timeout.millis(TEST_TIMEOUT_MS);
-
-    /**
-     * This class will be used in order to check side effects in tests
-     */
-    private class Counter {
-
-        private AtomicInteger mCount = new AtomicInteger(0);
-
-        private void increment() {
-            mCount.incrementAndGet();
-        }
-
-        private int getCount() {
-            return mCount.get();
-        }
-    }
+    public final static Timeout TIMEOUT = Timeout.seconds(5);
 
     private BackgroundThreadPosterTestDouble SUT;
 
@@ -50,11 +33,6 @@ public class BackgroundThreadPosterTestDoubleTest {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 counter.increment();
             }
         };
@@ -72,18 +50,12 @@ public class BackgroundThreadPosterTestDoubleTest {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 counter.increment();
             }
         };
         // Act
         SUT.post(runnable);
         // Assert
-        Thread.sleep(TEST_DELAY_MS);
         SUT.join();
         assertThat(counter.getCount(), is(1));
     }
@@ -92,20 +64,21 @@ public class BackgroundThreadPosterTestDoubleTest {
     public void executeThenJoin_multipleRunnablesIndependent_sideEffectsNotVisibleBeforeJoin() throws Exception {
         // Arrange
         final Counter counter = new Counter();
-        Runnable runnable = new Runnable() {
+        Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                counter.increment();
+            }
+        };
+        Runnable runnable2 = new Runnable() {
+            @Override
+            public void run() {
                 counter.increment();
             }
         };
         // Act
-        SUT.post(runnable);
-        SUT.post(runnable);
+        SUT.post(runnable1);
+        SUT.post(runnable2);
         // Assert
         Thread.sleep(TEST_DELAY_MS);
         assertThat(counter.getCount(), is(0));
@@ -115,22 +88,22 @@ public class BackgroundThreadPosterTestDoubleTest {
     public void executeThenJoin_multipleRunnablesIndependent_sideEffectsVisibleAfterJoin() throws Exception {
         // Arrange
         final Counter counter = new Counter();
-        Runnable runnable = new Runnable() {
+        Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                counter.increment();
+            }
+        };
+        Runnable runnable2 = new Runnable() {
+            @Override
+            public void run() {
                 counter.increment();
             }
         };
         // Act
-        SUT.post(runnable);
-        SUT.post(runnable);
+        SUT.post(runnable1);
+        SUT.post(runnable2);
         // Assert
-        Thread.sleep(TEST_DELAY_MS);
         SUT.join();
         assertThat(counter.getCount(), is(2));
     }
@@ -143,19 +116,14 @@ public class BackgroundThreadPosterTestDoubleTest {
         Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                semaphore.release();
+                semaphore.acquireUninterruptibly();
                 counter.increment();
             }
         };
         Runnable runnable2 = new Runnable() {
             @Override
             public void run() {
-                semaphore.acquireUninterruptibly();
+                semaphore.release();
                 counter.increment();
             }
         };
@@ -175,19 +143,14 @@ public class BackgroundThreadPosterTestDoubleTest {
         Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(2 * TEST_DELAY_MS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                semaphore.release();
+                semaphore.acquireUninterruptibly();
                 counter.increment();
             }
         };
         Runnable runnable2 = new Runnable() {
             @Override
             public void run() {
-                semaphore.acquireUninterruptibly();
+                semaphore.release();
                 counter.increment();
             }
         };
@@ -195,8 +158,24 @@ public class BackgroundThreadPosterTestDoubleTest {
         SUT.post(runnable1);
         SUT.post(runnable2);
         // Assert
-        Thread.sleep(TEST_DELAY_MS);
         SUT.join();
         assertThat(counter.getCount(), is(2));
     }
+
+    /**
+     * This class will be used in order to check side effects in tests
+     */
+    private class Counter {
+
+        private AtomicInteger mCount = new AtomicInteger(0);
+
+        private void increment() {
+            mCount.incrementAndGet();
+        }
+
+        private int getCount() {
+            return mCount.get();
+        }
+    }
+
 }

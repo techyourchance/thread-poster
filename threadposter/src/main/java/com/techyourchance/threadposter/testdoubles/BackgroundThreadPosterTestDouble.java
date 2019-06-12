@@ -5,10 +5,13 @@ import com.techyourchance.threadposter.BackgroundThreadPoster;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Test double of {@link BackgroundThreadPoster} that can be used in tests in order to establish
@@ -19,12 +22,20 @@ import java.util.concurrent.TimeUnit;
 
     private final Object MONITOR = new Object();
 
-    private final Queue<Thread> mThreads = new LinkedList<>();
+    private final Queue<Runnable> mRunnables = new ConcurrentLinkedQueue<>();
+
+    private int mNonCompletedRunnables = 0;
+
+    @Override
+    public void post(Runnable runnable) {
+        synchronized (MONITOR) {
+            mNonCompletedRunnables++;
+        }
+        mRunnables.add(runnable);
+    }
 
     @Override
     protected ThreadPoolExecutor newThreadPoolExecutor() {
-        // in order to support the strategy employed in join() method, we need to ensure that all
-        // threads are added to the queue, and are terminated the moment they are idle
         return new ThreadPoolExecutor(
                 0,
                 Integer.MAX_VALUE,
@@ -33,12 +44,17 @@ import java.util.concurrent.TimeUnit;
                 new SynchronousQueue<Runnable>(),
                 new ThreadFactory() {
                     @Override
-                    public Thread newThread(Runnable r) {
-                        synchronized (MONITOR) {
-                            Thread newThread = new Thread(r);
-                            mThreads.add(newThread);
-                            return newThread;
-                        }
+                    public Thread newThread(final Runnable r) {
+                        return new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                r.run();
+                                synchronized (MONITOR) {
+                                    mNonCompletedRunnables--;
+                                    MONITOR.notifyAll();
+                                }
+                            }
+                        });
                     }
                 }
         );
@@ -51,17 +67,17 @@ import java.util.concurrent.TimeUnit;
      * {@link Runnable}s sent for execution and any subsequent code.
      */
     public void join() {
-        Queue<Thread> threadsCopy;
         synchronized (MONITOR) {
-            threadsCopy = new LinkedList<>(mThreads);
-        }
-
-        Thread thread;
-        while ((thread = threadsCopy.poll()) != null) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            Runnable runnable;
+            while (mNonCompletedRunnables > 0) {
+                while ((runnable = mRunnables.poll()) != null) {
+                    super.post(runnable);
+                }
+                try {
+                    MONITOR.wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException("interrupted");
+                }
             }
         }
     }

@@ -20,7 +20,7 @@ public class BackgroundThreadPoster {
      * Execute {@link Runnable} on a random background thread.
      * @param runnable {@link Runnable} instance containing the code that should be executed
      */
-    public final void post(Runnable runnable) {
+    public void post(Runnable runnable) {
         mThreadPoolExecutor.execute(runnable);
     }
 
