@@ -29,9 +29,10 @@ import java.util.concurrent.atomic.AtomicInteger;
     @Override
     public void post(Runnable runnable) {
         synchronized (MONITOR) {
+            mRunnables.add(runnable);
             mNonCompletedRunnables++;
+            MONITOR.notifyAll();
         }
-        mRunnables.add(runnable);
     }
 
     @Override
@@ -61,12 +62,11 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     /**
-     * Call to this method will block until all {@link Runnable}s sent for execution by this
-     * "test double" BEFORE THE MOMENT OF A CALL will be completed.<br>
-     * Call to this method allows to establish a happens-before relationship between the
-     * {@link Runnable}s sent for execution and any subsequent code.
+     * Execute all {@link Runnable}s posted to this "test double". The caller will block until the operation completes<br>
+     * Call to this method allows to establish a happens-before relationship between the previously
+     * posted {@link Runnable}s and subsequent code.
      */
-    public void join() {
+    /* pp */ void join() {
         synchronized (MONITOR) {
             Runnable runnable;
             while (mNonCompletedRunnables > 0) {

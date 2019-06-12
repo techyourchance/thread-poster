@@ -162,6 +162,40 @@ public class BackgroundThreadPosterTestDoubleTest {
         assertThat(counter.getCount(), is(2));
     }
 
+    @Test
+    public void executeThenJoin_multipleNestedRunnablesInterdependent_sideEffectsVisibleAfterJoin() throws Exception {
+        // Arrange
+        final Counter counter = new Counter();
+        final Semaphore semaphore = new Semaphore(0);
+        final Runnable runnable1 = new Runnable() {
+            @Override
+            public void run() {
+                semaphore.release();
+                counter.increment();
+            }
+        };
+        final Runnable runnable2 = new Runnable() {
+            @Override
+            public void run() {
+                SUT.post(runnable1);
+                semaphore.acquireUninterruptibly();
+                counter.increment();
+            }
+        };
+        final Runnable runnable3 = new Runnable() {
+            @Override
+            public void run() {
+                SUT.post(runnable2);
+                counter.increment();
+            }
+        };
+        // Act
+        SUT.post(runnable3);
+        // Assert
+        SUT.join();
+        assertThat(counter.getCount(), is(3));
+    }
+
     /**
      * This class will be used in order to check side effects in tests
      */

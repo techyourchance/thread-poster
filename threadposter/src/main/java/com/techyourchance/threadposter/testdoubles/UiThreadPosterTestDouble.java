@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
      * Call to this method allows to establish a happens-before relationship between the previously
      * posted {@link Runnable}s and subsequent code.
      */
-    public void join() {
+    /* pp */ void join() {
         final Thread fakeUiThread = new Thread() {
             @Override
             public void run() {
