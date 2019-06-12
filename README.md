@@ -9,7 +9,7 @@ Lightweight library for unit testable and expressive multi-threading in Android.
 To use ThreadPoster in your project, add this line to your Gradle dependencies configuration:
 
 ```
-implementation 'com.techyourchance.threadposter:threadposter:0.8.2'
+implementation 'com.techyourchance.threadposter:threadposter:0.8.3'
 ```
 
 ## Usage
