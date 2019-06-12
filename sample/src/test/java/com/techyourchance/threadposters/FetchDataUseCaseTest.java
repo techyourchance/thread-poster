@@ -19,7 +19,7 @@ public class FetchDataUseCaseTest {
 
     private static final String TEST_DATA = "testData";
 
-    private ThreadPostersTestDouble mThreadPostersTestDouble = new ThreadPostersTestDouble();
+    private ThreadPostersTestDouble mThreadPostersTestDouble;
 
     private FakeDataFetcher mFakeDataFetcherMock;
     private FetchDataUseCase.Listener mListener1;
@@ -30,6 +30,7 @@ public class FetchDataUseCaseTest {
     @Before
     public void setup() throws Exception {
         mFakeDataFetcherMock = mock(FakeDataFetcher.class);
+        mThreadPostersTestDouble = new ThreadPostersTestDouble();
 
         SUT = new FetchDataUseCase(
                 mFakeDataFetcherMock,
@@ -59,7 +60,6 @@ public class FetchDataUseCaseTest {
     public void fetchData_successMultipleListeners_notifiedWithCorrectData() throws Exception {
         // Arrange
         success();
-        ArgumentCaptor<String> ac = ArgumentCaptor.forClass(String.class);
         // Act
         SUT.registerListener(mListener1);
         SUT.registerListener(mListener2);
@@ -70,11 +70,8 @@ public class FetchDataUseCaseTest {
         // all side effects to be present
         mThreadPostersTestDouble.join();
 
-        verify(mListener1).onDataFetched(ac.capture());
-        verify(mListener2).onDataFetched(ac.capture());
-        List<String> dataList = ac.getAllValues();
-        assertThat(dataList.get(0), is(TEST_DATA));
-        assertThat(dataList.get(1), is(TEST_DATA));
+        verify(mListener1).onDataFetched(TEST_DATA);
+        verify(mListener2).onDataFetched(TEST_DATA);
     }
 
     @Test
