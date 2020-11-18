@@ -3,15 +3,12 @@ package com.techyourchance.threadposter.testdoubles;
 
 import com.techyourchance.threadposter.BackgroundThreadPoster;
 
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Test double of {@link BackgroundThreadPoster} that can be used in tests in order to establish

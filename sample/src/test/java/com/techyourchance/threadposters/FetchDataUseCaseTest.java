@@ -4,9 +4,6 @@ import com.techyourchance.threadposter.testdoubles.ThreadPostersTestDouble;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
