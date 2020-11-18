@@ -7,7 +7,8 @@ import java.util.concurrent.TimeUnit;
 
 public class BackgroundThreadPoster {
 
-    private static final int DEFAULT_CORE_THREADS_COUNT = 3;
+    private static final int DEFAULT_CORE_THREADS_COUNT = Runtime.getRuntime()
+            .availableProcessors();
     private static final long KEEP_ALIVE_SECONDS = 60L;
 
     private final ThreadPoolExecutor mThreadPoolExecutor;
