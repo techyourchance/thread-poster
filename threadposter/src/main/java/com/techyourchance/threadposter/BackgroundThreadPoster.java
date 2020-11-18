@@ -54,7 +54,7 @@ public class BackgroundThreadPoster {
                 Integer.MAX_VALUE,
                 KEEP_ALIVE_SECONDS,
                 TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>()
+                new SynchronousQueue<>()
         );
     }
 
