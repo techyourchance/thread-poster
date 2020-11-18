@@ -7,13 +7,17 @@ import java.util.concurrent.TimeUnit;
 
 public class BackgroundThreadPoster {
 
-    private static final int CORE_THREADS = 3;
+    private static final int DEFAULT_CORE_THREADS_COUNT = 3;
     private static final long KEEP_ALIVE_SECONDS = 60L;
 
     private final ThreadPoolExecutor mThreadPoolExecutor;
 
     public BackgroundThreadPoster() {
-        mThreadPoolExecutor = newThreadPoolExecutor();
+        mThreadPoolExecutor = newThreadPoolExecutor(DEFAULT_CORE_THREADS_COUNT);
+    }
+
+    public BackgroundThreadPoster(int coreThreads) {
+        mThreadPoolExecutor = newThreadPoolExecutor(coreThreads);
     }
 
     /**
@@ -48,9 +52,9 @@ public class BackgroundThreadPoster {
      * The returned executor has sensible defaults for Android applications.<br>
      * Override only if you're ABSOLUTELY sure that you know what you're doing.
      */
-    protected ThreadPoolExecutor newThreadPoolExecutor() {
+    protected ThreadPoolExecutor newThreadPoolExecutor(int coreThreads) {
         return new ThreadPoolExecutor(
-                CORE_THREADS,
+                coreThreads,
                 Integer.MAX_VALUE,
                 KEEP_ALIVE_SECONDS,
                 TimeUnit.SECONDS,
