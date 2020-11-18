@@ -4,7 +4,6 @@ import android.os.Handler;
 
 import com.techyourchance.threadposter.UiThreadPoster;
 
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
