@@ -21,14 +21,8 @@ android {
 }
 
 dependencies {
+    implementation project(path: ':threadposter')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-    implementation 'com.techyourchance:threadposter:1.0.0'
-
-    // Tried this as well
-//    implementation ("com.techyourchance:threadposter:1.0.0@aar") {
-//        transitive = true
-//    }
 
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
 
